@@ -22,9 +22,13 @@ class Treeobj(object):
 
             for strobj in frame_data:
                 strobj = strobj.rstrip('[\n\r]')
-                strobj = re.sub('[\n\r\t]', ' ', strobj)
-                locals()['bktree_'+strIndex].insert(bk.StringObject(strobj))
-
+                strobj = re.sub('[\r\t]', ' ', strobj)
+                strobj = strobj.split("\n")
+                for keywordstr in strobj:
+                    locals()['bktree_' +
+                             strIndex].insert(bk.StringObject(keywordstr))
+                             
+            locals()['bktree_'+strIndex].insert(bk.StringObject(strIndex))
             self.bktreeList.append(locals()['bktree_'+strIndex])
             index += 1
 
@@ -33,7 +37,7 @@ class Treeobj(object):
         index = 0
         flag = 0
         outputfile.write("\n待匹配项:"+str)
-        outputfile.write("-------------------------\n")
+        outputfile.write("\n-------------------------\n")
         for tree in self.bktreeList:
             print(self.keyword[index]+':')
             outputfile.write(self.keyword[index]+':\n')
@@ -46,6 +50,12 @@ class Treeobj(object):
                 outputfile.write("  结果为空\n")
             flag = 0
             index += 1
+
+    def is_error(self, str):
+        for tree in self.bktreeList:
+            for obj in tree.find(bk.StringObject(str), 0):
+                return False
+        return True
 
 
 if __name__ == "__main__":

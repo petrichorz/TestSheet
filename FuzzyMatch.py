@@ -4,7 +4,6 @@ import re
 import bktree as bk
 import math
 
-
 def is_number(num):
     pattern = re.compile(r'^[-+]?[-0-9]\d*\.\d*|[-+]?\.?[0-9]\d*$')
     result = pattern.match(num)
@@ -39,8 +38,12 @@ class Treeobj(object):
             flag += 1
             outputlist.append(obj.value)
         return outputlist
+    
+    def add_dict(self, dict):
+        for strobj in dict:
+            strobj = strobj.rstrip('[\n\r]')
+            self.bktree.insert(bk.StringObject(strobj))
 
-    # 外层封装结构，调用这个
     '''
     str is the string need to fuzzy match
     reverse decide whether sort the output and output the len equal to str itself
@@ -49,7 +52,7 @@ class Treeobj(object):
     reverse决定是否只要输出长度一样的
     当然如果没有长度一样的，会全部输出
     '''
-
+    # 外层封装结构，调用这个
     def FuzzyMatch_v2(self, str="", reverse=True):
         # 洗掉无意义的浮点数
         if is_number(str) or not self.is_error(str):

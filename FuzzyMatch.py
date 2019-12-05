@@ -12,6 +12,8 @@ def is_number(num):
     else:
         return False
 
+def is_null(str):
+    return True if str=="null" else False
 
 def cal_used_editdistance(word):
     EditDistance = math.floor(0.25 * len(word))

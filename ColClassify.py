@@ -56,7 +56,7 @@ class Classification(object):
     def list_vote(self, strlist):
         votebox = []
         for strobj in strlist:
-            if fm.is_number(strobj):
+            if fm.is_number(strobj) or fm.is_null(strobj):
                 continue
             votebox.extend(self.str_score(strobj))
         # 形成投票箱后进行投票
@@ -66,26 +66,28 @@ class Classification(object):
         # 先获取出现次数列表
         return self.keyword[np.argmax(voteboard)]
 
+    #懒人专用接口，直接给list,返回dict
+    def sheet_divide(self, sheetlist):
+        dict = {}
+        for list in sheetlist:
+            dict[classtest.list_vote(list)] = list
+        return dict
+
 
 if __name__ == "__main__":
     # 给你个调试接口
     classtest = Classification("./dict.xls")
     testlist = [['LYM', 'CD19+', 'CD4+', 'CD3+%', 'CD8+%', 'CD4/CD8'],
                 ['淋巴细胞总数', '总B淋巴细胞数', '辅助性T细胞数','总T淋巴细胞%', '抑制/细胞毒性T细胞%', 'CD4/CD8比值'],
-                ['00', '108', '496', '76.37', '22.30', '2.22'], 
-                ['↓', 'null', 'null', 'null', 'null', 'null'], 
-                ['M/L', 'M/L', 'M/L', '%', '%', 'null'], 
-                ['1200-3400', '90-323', '410-884', '50.00-84.00', '15.00-44.00', '0.71-2.87'], 
-                ['CD3+', 'CD8+', 'CD3-CD16+CD56+', 'CD19+%', 'CD4+%', 'CD3-CD16+CD56+%'], 
-                ['总T淋巴细胞数', '抑制/细胞毒性T细胞数', 'NK细胞数', '总B淋巴细胞%', '辅助性T细胞%', 'MK细胞%'], 
-                ['764', '223', '90', '10.83', '49.58', '9.03'], 
-                ['M/L', 'M/L', 'M/L', '%', '%', '%'], 
-                ['690-1760', '190-658', '90-536', '5.00-18.00', '27.00-51.00', '7.00-40.00']
-    ]
-    testlist2 = ['764', '223', '90', '10.83', '49.58', '9.03']
-    for list in testlist:
-        print(classtest.list_vote(list),end=' ')
-    print("\n")
-    '''
-    print(classtest.list_vote(testlist2))
-    '''
+                ['00', '108', '496', '76.37', '22.30', '2.22'],
+                ['↓', 'null', 'null', 'null', 'null', 'null'],
+                ['M/L', 'M/L', 'M/L', '%', '%', 'null'],
+                ['1200-3400', '90-323', '410-884','50.00-84.00', '15.00-44.00', '0.71-2.87'],
+                ['CD3+', 'CD8+', 'CD3-CD16+CD56+','CD19+%', 'CD4+%', 'CD3-CD16+CD56+%'],
+                ['总T淋巴细胞数', '抑制/细胞毒性T细胞数', 'NK细胞数', '总B淋巴细胞%', '辅助性T细胞%', 'MK细胞%'],
+                ['764', '223', '90', '10.83', '49.58', '9.03'],
+                ['M/L', 'M/L', 'M/L', '%', '%', '%'],
+                ['690-1760', '190-658', '90-536','5.00-18.00', '27.00-51.00', '7.00-40.00']
+                ]
+    testlist2 = [['↓', 'null', 'null', 'null', 'null', 'null']]
+    print(classtest.sheet_divide(testlist))

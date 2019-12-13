@@ -1,7 +1,19 @@
 import FuzzyMatch as fm
 import pandas as pd
 import numpy as np
+import re
 
+def remove_punctuation(str):
+    filter_relu = re.compile(u"[^↓↑μ.,\^/\\a-zA-Z0-9\u4e00-\u9fa5\uFF01-\uFF64\u3000-\u303F\uFE10-\uFE1F]")
+    #先把字符串转为unicode编码
+    str = filter_relu.sub('',str)
+    return str
+
+def filter_list(strlist):
+    filtered = []
+    for obj in strlist:
+        filtered.append(remove_punctuation(obj))
+    return filtered
 
 class Classification(object):
     bktreeList = []
@@ -37,6 +49,7 @@ class Classification(object):
         index = 0
         for tree in self.bktreeList:
             if not tree.is_error(str):
+                #is_error本意是产看str在树tree中有没有
                 strLabel.append(index)
             index += 1
         if len(strLabel) == 0:
@@ -61,17 +74,26 @@ class Classification(object):
             votebox.extend(self.str_score(strobj))
         # 形成投票箱后进行投票
         if len(votebox) == 0:
-            return "UnknowCol"
+            return "unknowed"
         voteboard = np.bincount(votebox)
         # 先获取出现次数列表
         return self.keyword[np.argmax(voteboard)]
 
     #懒人专用接口，直接给list,返回dict
     def sheet_divide(self, sheetlist):
-        dict = {}
+        titlelist = []
+        obfuscation = ["结果","参考值"]
+        switch =  0
+        #做个二项开关
         for list in sheetlist:
-            dict[classtest.list_vote(list)] = list
-        return dict
+            #dict[self.list_vote(list)] = list
+            if self.list_vote(list) in ['unknowed','参考值']:
+                title = obfuscation[switch]
+                switch = not switch
+            else:
+                title = self.list_vote(list)
+            titlelist.append(title)
+        return titlelist
 
 
 if __name__ == "__main__":
@@ -91,3 +113,10 @@ if __name__ == "__main__":
                 ]
     testlist2 = [['↓', 'null', 'null', 'null', 'null', 'null']]
     print(classtest.sheet_divide(testlist))
+    classtest.sheet_divide(testlist2)
+    '''
+    listline=[['Pb', 'Zn(Q)', 'Cu(Q)', 'Fe(Q)', 'Ca(Q)', 'Mg(Q)'], ['全血铅', '全血锌', '全血铜', '全血铁', '全血钙', '全血镁'], ['25', '103.68', '35.13', '8.33', '1.53', '1.37'], ['μg/L', 'μ■ol/L', 'μmol/L', '■mol/L', '■mol/L', '■mol/L'], ['0-200', '76.50-170.00', '11.80-39.30', '7.52-11.82', '1.31-1.95', '1.12-2.06']]
+    listline2=[['T3', 'T4', 'FT3', 'FT4', 'TSH', 'TG-Ab', 'TP0-Ab'], ['三碘甲状腺原氨酸', '甲状腺素', '游离三碘甲状腺原氨酸', '游离甲状腺素', '促甲状腺激素', '抗甲状腺球蛋白抗体', '抗甲状腺过氧化物酶抗体'], ['4.76', '205.80', '16.54', '51.60', '<0.005', '486.80', '302.00'], ['↑', '↑', '↑', '↑', '↓', '↑', '↑'], ['nmol/t', 'nmol/L', 'pmol/L', 'pmol/L', '■IU/L', 'KIU/L', 'KIU/L'], ['1,30-3.10', '66.00-181.00', '3.10-6.80', '12.00-22.00', '0.270-4.200', '<115.00', '<34.00']]
+    for list1 in listline2:
+        print(filter_list(list1))
+    '''
